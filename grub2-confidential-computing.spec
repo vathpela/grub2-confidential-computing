@@ -41,6 +41,7 @@ BuildRequires:	squashfs-tools
 
 Source0:	grub.cfg
 Source1:	sbat.csv.in
+Source2:	grubenv
 
 %description
 This is a grub image for use in confidential computing VMs.
@@ -95,13 +96,19 @@ grub2-mkimage \
 
 %install
 set -e
-install -d -m 0755 ${RPM_BUILD_ROOT}'%{_libdir}/%{name}/'
+install -d -m 0700 ${RPM_BUILD_ROOT}'%{_libdir}/%{name}/'
 install -m 0644 grub%{efi_arch}.efi \
 	${RPM_BUILD_ROOT}'%{_libdir}/%{name}/grub%{efi_arch}.efi'
+install -d -m 0700 ${RPM_BUILD_ROOT}%{efi_esp_dir}
+# grubenv is o+rwx because of filesystem limitations
+install -m 0700 %{SOURCE2} ${RPM_BUILD_ROOT}%{efi_esp_dir}
 
 %files
 %attr(0700,root,root) %dir %{_libdir}/%{name}
 %attr(0644,root,root) %{_libdir}/%{name}/*
+%attr(0700,root,root) %dir %{efi_esp_dir}
+# grubenv is o+rwx because of filesystem limitations
+%ghost %config(noreplace) %verify(not mtime) %attr(0700,root,root)%{efi_esp_dir}/grubenv
 
 %changelog
 * Wed Nov 19 2025 Peter Jones <pjones@redhat.com> - 1-1
