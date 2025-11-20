@@ -8,12 +8,15 @@
 %endif
 %global grub_dir /usr/lib/grub/%{grub_arch}
 
-%global grub_epoch %{expand:%%(rpm -q --qf '%{epoch}' grub2-efi-%{efi_arch} \\\
-			| rpmsort | tail -1)}
-%global grub_version %{expand:%%(rpm -q --qf '%{version}' grub2-efi-%{efi_arch} \\\
-			| rpmsort | tail -1)}
-%global grub_release %{expand:%%(rpm -q --qf '%{release}' grub2-efi-%{efi_arch} \\\
-			| rpmsort | tail -1)}
+%global grub_epoch %{expand:%%(\\\
+	rpm -q grub2-efi-%{efi_arch} | rpmsort | tail -1 \\\
+	| xargs -r rpm -q --qf '%{epoch}')}
+%global grub_version %{expand:%%(\\\
+	rpm -q grub2-efi-%{efi_arch} | rpmsort | tail -1 \\\
+	| xargs -r rpm -q --qf '%{version}')}
+%global grub_release %{expand:%%(\\\
+	rpm -q grub2-efi-%{efi_arch} | rpmsort | tail -1 \\\
+	| xargs -r rpm -q --qf '%{release}')}
 
 Name:		grub2-confidential-computing
 Epoch:		%{grub_epoch}
@@ -27,6 +30,7 @@ ExclusiveArch:	aarch64 x86_64
 
 BuildRequires:	coreutils
 BuildRequires:	efi-srpm-macros
+BuildRequires:	findutils
 BuildRequires:	grub2-efi-%{efi_arch}
 BuildRequires:	grub2-efi-%{efi_arch}-modules
 BuildRequires:	grub2-tools
@@ -102,4 +106,3 @@ install -m 0644 grub%{efi_arch}.efi \
 %changelog
 * Wed Nov 19 2025 Peter Jones <pjones@redhat.com> - 1-1
 - Sigh.
-
